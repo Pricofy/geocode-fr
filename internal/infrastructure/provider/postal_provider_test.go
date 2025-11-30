@@ -3,7 +3,7 @@ package provider
 import (
 	"testing"
 
-	"github.com/pricofy/geocode-es/internal/domain"
+	"github.com/pricofy/geocode-fr/internal/domain"
 )
 
 func TestPostalCodeProvider_GeocodeByPostalCode(t *testing.T) {
@@ -16,14 +16,14 @@ func TestPostalCodeProvider_GeocodeByPostalCode(t *testing.T) {
 		wantErr     bool
 	}{
 		{
-			name:        "valid postal code - Madrid",
-			postalCode:  "28001",
+			name:        "valid postal code - Paris",
+			postalCode:  "75001",
 			wantSuccess: true,
 			wantErr:     false,
 		},
 		{
-			name:        "valid postal code - Barcelona",
-			postalCode:  "08001",
+			name:        "valid postal code - Troyes",
+			postalCode:  "10000",
 			wantSuccess: true,
 			wantErr:     false,
 		},
@@ -74,34 +74,34 @@ func TestPostalCodeProvider_GeocodeByMunicipality(t *testing.T) {
 	p := NewPostalCodeProvider()
 
 	tests := []struct {
-		name        string
+		name         string
 		municipality string
-		wantSuccess bool
-		wantErr     bool
+		wantSuccess  bool
+		wantErr      bool
 	}{
 		{
-			name:         "valid municipality - Madrid",
-			municipality: "Madrid",
-			wantSuccess: true,
-			wantErr:     false,
+			name:         "valid municipality - Paris",
+			municipality: "Paris",
+			wantSuccess:  true,
+			wantErr:      false,
 		},
 		{
-			name:         "valid municipality - Barcelona",
-			municipality: "Barcelona",
-			wantSuccess: true,
-			wantErr:     false,
+			name:         "valid municipality - Troyes",
+			municipality: "Troyes",
+			wantSuccess:  true,
+			wantErr:      false,
 		},
 		{
 			name:         "invalid municipality",
 			municipality: "NonExistentCity",
-			wantSuccess: false,
-			wantErr:     true,
+			wantSuccess:  false,
+			wantErr:      true,
 		},
 		{
-			name:        "case insensitive",
-			municipality: "madrid",
-			wantSuccess: true,
-			wantErr:     false,
+			name:         "case insensitive",
+			municipality: "paris",
+			wantSuccess:  true,
+			wantErr:      false,
 		},
 	}
 
@@ -139,23 +139,23 @@ func TestPostalCodeProvider_ReverseGeocode(t *testing.T) {
 		wantErr     bool
 	}{
 		{
-			name:        "Madrid coordinates",
-			lat:         40.4168,
-			lon:         -3.7038,
+			name:        "Paris coordinates",
+			lat:         48.8592,
+			lon:         2.3417,
 			wantSuccess: true,
 			wantErr:     false,
 		},
 		{
-			name:        "Barcelona coordinates",
-			lat:         41.3851,
-			lon:         2.1734,
+			name:        "Troyes coordinates",
+			lat:         48.3007,
+			lon:         4.0852,
 			wantSuccess: true,
 			wantErr:     false,
 		},
 		{
-			name:        "Valid coordinates in Spain",
-			lat:         39.4765,
-			lon:         -6.3722,
+			name:        "Valid coordinates in France",
+			lat:         43.6047,
+			lon:         1.4442,
 			wantSuccess: true,
 			wantErr:     false,
 		},
@@ -229,24 +229,24 @@ func TestPostalCodeProvider_ValidateMunicipality(t *testing.T) {
 	p := NewPostalCodeProvider()
 
 	tests := []struct {
-		name      string
+		name         string
 		municipality string
-		want      bool
+		want         bool
 	}{
 		{
 			name:         "valid municipality",
-			municipality: "Madrid",
-			want:      true,
+			municipality: "Paris",
+			want:         true,
 		},
 		{
-			name:      "case insensitive",
-			municipality: "madrid",
-			want:      true,
+			name:         "case insensitive",
+			municipality: "paris",
+			want:         true,
 		},
 		{
 			name:         "invalid municipality",
 			municipality: "NonExistentCity",
-			want:      false,
+			want:         false,
 		},
 	}
 
@@ -370,25 +370,25 @@ func TestPostalCodeProvider_CalculateDistance(t *testing.T) {
 	p := NewPostalCodeProvider()
 
 	// Test Haversine distance calculation
-	// Madrid coordinates
-	madridLat, madridLon := 40.4168, -3.7038
-	barcelonaLat, barcelonaLon := 41.3851, 2.1734
+	// Paris coordinates
+	parisLat, parisLon := 48.8592, 2.3417
+	troyesLat, troyesLon := 48.3007, 4.0852
 
-	_, dist, err := p.ReverseGeocode(madridLat, madridLon)
+	_, dist, err := p.ReverseGeocode(parisLat, parisLon)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	_, dist2, err := p.ReverseGeocode(barcelonaLat, barcelonaLon)
+	_, dist2, err := p.ReverseGeocode(troyesLat, troyesLon)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
 	// Distance should be reasonable (not negative, not too large)
 	if dist < 0 || dist > 1000 {
-		t.Errorf("Distance from Madrid seems incorrect: %f km", dist)
+		t.Errorf("Distance from Paris seems incorrect: %f km", dist)
 	}
 	if dist2 < 0 || dist2 > 1000 {
-		t.Errorf("Distance from Barcelona seems incorrect: %f km", dist2)
+		t.Errorf("Distance from Troyes seems incorrect: %f km", dist2)
 	}
 }

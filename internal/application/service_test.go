@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/pricofy/geocode-es/internal/domain"
+	"github.com/pricofy/geocode-fr/internal/domain"
 )
 
 func TestPostalCodeService_GeocodeByPostal(t *testing.T) {

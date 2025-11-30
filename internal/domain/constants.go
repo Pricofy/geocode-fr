@@ -1,11 +1,11 @@
 // Package domain contains core business logic and domain models for the geocoding service.
 package domain
 
-// Constants for Spanish postal code geocoding service.
+// Constants for French postal code geocoding service.
 
-// PostalCodeRegexPattern is the regex pattern for Spanish postal codes.
-// Format: 5 digits (e.g., 28001, 08001).
-const PostalCodeRegexPattern = `^\d{5}$`
+// PostalCodeRegexPattern is the regex pattern for French postal codes.
+// Format: 5 digits optionally followed by space and uppercase text (e.g., 75001, 75021 CEDEX 01).
+const PostalCodeRegexPattern = `^\d{5}(\s+[A-Z\s]+)?$`
 
 // EarthRadiusKm is the Earth's radius in kilometers for Haversine distance calculations.
 const EarthRadiusKm = 6371
