@@ -43,3 +43,4 @@ new GeocodeFrStack(app, `PricofyGeocodeFrStack`, {
 console.log(`✅ Stack name: PricofyGeocodeFrStack`);
 
 app.synth();
+
