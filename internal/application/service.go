@@ -422,3 +422,63 @@ func (s *PostalCodeService) parseAutocompleteInput(event domain.LambdaEvent, isP
 
 	return value, limit, nil
 }
+
+// GeocodeMunicipalitiesBatch geocodes multiple municipalities in a single batch operation.
+//
+// Performs batch geocoding of multiple municipalities to optimize performance
+// when geocoding many municipalities at once. Each municipality is looked up
+// independently in the municipality index.
+//
+// Parameters:
+//   - event: LambdaEvent containing municipalities array in the body
+//
+// Returns:
+//   - BatchGeocodingResponse with results map and count of successful geocodings
+//   - error if input parsing fails or municipalities array is empty
+func (s *PostalCodeService) GeocodeMunicipalitiesBatch(event domain.LambdaEvent) (domain.BatchGeocodingResponse, error) {
+	var body domain.RequestBody
+	if err := json.Unmarshal([]byte(event.Body), &body); err != nil {
+		serviceLogger.Error(errorMessageFailedToParseRequestBody, err, nil)
+		return domain.BatchGeocodingResponse{}, domain.NewValidationError(errorMessageInvalidJSONInRequestBody, "body")
+	}
+
+	// Validate municipalities field
+	if len(body.Municipalities) == 0 {
+		serviceLogger.Warn("Missing or empty municipalities field", map[string]interface{}{
+			"operation": body.Operation,
+		})
+		return domain.BatchGeocodingResponse{}, domain.NewValidationError("municipalities field is required and must not be empty", "municipalities")
+	}
+
+	serviceLogger.Info("Processing batch geocoding", map[string]interface{}{
+		"count": len(body.Municipalities),
+	})
+
+	// Call provider to geocode municipalities
+	results := s.provider.GeocodeByMunicipalitiesBatch(body.Municipalities)
+
+	// Count successful results and collect errors
+	foundCount := 0
+	errors := []string{}
+	for municipality, result := range results {
+		if result != nil && result.Found {
+			foundCount++
+		} else {
+			errors = append(errors, "Municipality not found: "+municipality)
+		}
+	}
+
+	serviceLogger.Info("Batch geocoding completed", map[string]interface{}{
+		"requested": len(body.Municipalities),
+		"found":     foundCount,
+		"notFound":  len(body.Municipalities) - foundCount,
+	})
+
+	// Build response
+	return domain.BatchGeocodingResponse{
+		Success: true,
+		Results: results,
+		Count:   foundCount,
+		Errors:  errors,
+	}, nil
+}
